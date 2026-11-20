@@ -19,7 +19,7 @@ The compositing program produces two output images in `output/`:
 ## Compositing Process
 
 1. Draw the base image on an offscreen 1920x1280 canvas.
-2. Composite the ghost mark onto the suitcase: centered at raw coordinates (883, 461), diameter 326 px, rotated -20 degrees to align with the suitcase tilt.
+2. Composite the ghost mark onto the suitcase: centered at raw coordinates (883, 461), diameter 326 px, rotated +20 degrees (clockwise) to align with the suitcase tilt.
 3. Crop/scale onto the final 1600x1000 canvas: source rect (0, 40, 1920, 1200) drawn to (0, 0, 1600, 1000).
 4. Typeset three caption lines with canvas text:
    - y=26, start size 84, fill #FFFFFF: "GTA VI NEEDS HOW MUCH STORAGE?!"
