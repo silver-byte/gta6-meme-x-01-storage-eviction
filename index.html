@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>gta6-meme-x-01 Compositor</title>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    canvas { display: none; }
+  </style>
+</head>
+<body>
+<canvas id="offscreen" width="1920" height="1280"></canvas>
+<canvas id="final" width="1600" height="1000"></canvas>
+<canvas id="thumb" width="768" height="480"></canvas>
+<script>
+(async () => {
+  const offscreen = document.getElementById('offscreen');
+  const offCtx = offscreen.getContext('2d');
+  const final = document.getElementById('final');
+  const finalCtx = final.getContext('2d');
+  const thumb = document.getElementById('thumb');
+  const thumbCtx = thumb.getContext('2d');
+
+  function loadImage(src) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = src;
+    });
+  }
+
+  const [baseImg, ghostImg] = await Promise.all([
+    loadImage('assets/base-storage-eviction.webp'),
+    loadImage('assets/mark-1024.png')
+  ]);
+
+  offCtx.drawImage(baseImg, 0, 0, 1920, 1280);
+
+  offCtx.save();
+  offCtx.translate(883, 461);
+  offCtx.rotate(-20 * Math.PI / 180);
+  offCtx.drawImage(ghostImg, -163, -163, 326, 326);
+  offCtx.restore();
+
+  finalCtx.drawImage(offscreen, 0, 40, 1920, 1200, 0, 0, 1600, 1000);
+
+  function drawCaption(ctx, text, y, startSize, fillColor, maxWidth = 1500, minSize = 18) {
+    let size = startSize;
+    ctx.font = `bold ${size}px "DejaVu Sans"`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.lineJoin = 'round';
+    while (size >= minSize) {
+      ctx.lineWidth = Math.max(3, Math.round(size / 11));
+      const metrics = ctx.measureText(text);
+      if (metrics.width <= maxWidth) break;
+      size -= 4;
+      ctx.font = `bold ${size}px "DejaVu Sans"`;
+    }
+    ctx.lineWidth = Math.max(3, Math.round(size / 11));
+    ctx.strokeStyle = '#000000';
+    ctx.strokeText(text, 800, y);
+    ctx.fillStyle = fillColor;
+    ctx.fillText(text, 800, y);
+  }
+
+  drawCaption(finalCtx, 'GTA VI NEEDS HOW MUCH STORAGE?!', 26, 84, '#FFFFFF');
+  drawCaption(finalCtx, 'EVERY OTHER GAME: EVICTED', 830, 64, '#FFFFFF');
+  drawCaption(finalCtx, 'THE GHOST MOVED IN AND GOT PAID - make.fun', 912, 50, '#FF88C4');
+
+  thumbCtx.drawImage(final, 0, 0, 768, 480);
+
+  const finalDataUrl = final.toDataURL('image/png');
+  const thumbDataUrl = thumb.toDataURL('image/png');
+
+  console.log('__FINAL__' + finalDataUrl);
+  console.log('__THUMB__' + thumbDataUrl);
+
+  await fetch('/save/final', { method: 'POST', body: finalDataUrl });
+  await fetch('/save/thumb', { method: 'POST', body: thumbDataUrl });
+})();
+</script>
+</body>
+</html>
